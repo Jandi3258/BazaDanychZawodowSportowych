@@ -1,0 +1,89 @@
+-- Wyświetla zawodników wraz z informacjami o zdobytych trofeach, wydarzeniach oraz dyscyplinach.
+CREATE VIEW Widok_ZawodnicyTrofea AS
+SELECT 
+    z.IdZawodnicy,
+    z.Imie,
+    z.Nazwisko,
+    t.ZdobyteTrofeum,
+    w.Nazwa AS NazwaZawodow,
+    d.Nazwa AS Dyscyplina
+FROM Trofea t
+JOIN Zawodnicy z ON t.NrZawodnika = z.IdZawodnicy
+JOIN Zawody w ON t.IdZawodow = w.IdZawody
+JOIN Dyscyplina d ON t.NrDyscyplinySportowej = d.IdDyscyplina;
+GO
+
+-- Łączy informacje o wydarzeniach ze szczegółami miejsc, gdzie się odbywają.
+CREATE VIEW Widok_ZawodyMiejsca AS
+SELECT 
+    w.IdZawody,
+    w.Nazwa AS NazwaZawodow,
+    w.Data,
+    m.Nazwa AS NazwaMiejsca,
+    m.Miejscowosc
+FROM Zawody w
+JOIN Miejsce m ON w.Miejsce = m.IdMiejsce;
+GO
+
+-- Prezentuje kibiców wraz z nazwą stowarzyszenia, do którego należą (jeśli przypisani).
+CREATE VIEW Widok_KibiceStowarzyszenia AS
+SELECT 
+    k.IdKibice,
+    k.Imie,
+    k.Nazwisko,
+    s.Nazwa AS NazwaStowarzyszenia
+FROM Kibice k
+LEFT JOIN Stowarzyszenia s ON k.NrStowarzyszenia = s.IdStowarzyszenia;
+GO
+
+-- Pokazuje informacje o uczestnictwie kibiców w wydarzeniach (z biletem).
+CREATE VIEW Widok_KibicZawody AS
+SELECT 
+    kz.IdKibicZawody,
+    kz.NrZawodow,
+    k.Imie,
+    k.Nazwisko,
+    kz.CenaBiletu
+FROM KibicZawody kz
+JOIN Kibice k ON kz.Kibic = k.IdKibice;
+GO
+
+-- Łączy dane o zakupach pamiątek przez kibiców oraz informacje o wydarzeniach, podczas których dokonano zakupu.
+CREATE VIEW Widok_ZakupyPamiatki AS
+SELECT 
+    zkp.IdZakupy,
+    k.Imie AS KlientImie,
+    k.Nazwisko AS KlientNazwisko,
+    p.Nazwa AS NazwaPamiatki,
+    p.Cena,
+    w.Nazwa AS NazwaZawodow
+FROM Zakupy zkp
+JOIN Kibice k ON zkp.NrKlienta = k.IdKibice
+JOIN Pamiatki p ON zkp.NrPamiatki = p.IdPamiatki
+JOIN Zawody w ON zkp.IdZawodow = w.IdZawody;
+GO
+
+-- Prezentuje informacje o sponsoringu – łącząc dane o sponsorach oraz wydarzeniach.
+CREATE VIEW Widok_Sponsoring AS
+SELECT 
+    ssp.IdSponsoring,
+    sp.Nazwa AS Sponsor,
+    w.Nazwa AS NazwaZawodow,
+    ssp.Kwota
+FROM Sponsoring ssp
+JOIN Sponsorzy sp ON ssp.IdSponsora = sp.IdSponsorzy
+JOIN Zawody w ON ssp.Zawody = w.IdZawody;
+GO
+
+-- Łączy informacje o konkursach dla kibiców z danymi o zwycięzcach oraz nagrodach.
+CREATE VIEW Widok_KonkursyKibicow AS
+SELECT 
+    kd.IdKonkursyDlaKibicow,
+    kd.Nazwa AS NazwaKonkursu,
+    k.Imie AS ZwyciezcaImie,
+    k.Nazwisko AS ZwyciezcaNazwisko,
+    p.Nazwa AS Nagroda
+FROM KonkursyDlaKibicow kd
+JOIN Kibice k ON kd.Zwyciezca = k.IdKibice
+JOIN Pamiatki p ON kd.NrNagrody = p.IdPamiatki;
+GO
