@@ -1,0 +1,100 @@
+-- Dodawanie nowego zawodnika do bazy
+CREATE PROCEDURE DodajZawodnika (
+    @Imie VARCHAR(50),
+    @Nazwisko VARCHAR(50),
+    @DataUrodzenia DATE,
+	@GlownaDyscyplina INT,
+	@PESEL VARCHAR(50)
+)
+AS
+    INSERT INTO Zawodnicy
+    VALUES (@Imie, @Nazwisko, @DataUrodzenia, @GlownaDyscyplina, @PESEL);
+GO
+
+
+
+CREATE PROCEDURE UsunZawodnika
+    @IdZawodnika INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Usuń powiązane rekordy z tabeli Rekord100m
+        DELETE FROM Rekord100m WHERE NrZawodnika = @IdZawodnika;
+
+        -- Usuń powiązane rekordy z tabeli Trofea
+        DELETE FROM Trofea WHERE NrZawodnika = @IdZawodnika;
+
+        -- Usuń powiązane rekordy z tabeli ZawodnicyZawody
+        DELETE FROM ZawodnicyZawody WHERE NrZawodnika = @IdZawodnika;
+
+        -- Usuń zawodnika
+        DELETE FROM Zawodnicy WHERE IdZawodnicy = @IdZawodnika;
+
+        COMMIT TRANSACTION;
+        PRINT 'Usunięto zawodnika o ID: ' + CAST(@IdZawodnika AS VARCHAR);
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrMsg, 16, 1);
+    END CATCH
+END;
+GO
+
+-- Procedura - ObliczSredniaWiekZawodnikow (oblicza średni wiek zawodników)
+CREATE PROCEDURE ObliczSredniaWiekZawodnikow
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @SredniaWiek DECIMAL(5,2);
+
+    -- Obliczenie średniego wieku na podstawie różnicy lat między datą urodzenia a aktualną datą
+    SELECT @SredniaWiek = AVG(DATEDIFF(YEAR, DataUrodzenia, GETDATE()))
+    FROM Zawodnicy;
+
+    PRINT 'Średni wiek zawodników wynosi: ' + CAST(@SredniaWiek AS VARCHAR(10)) + ' lat.';
+    SELECT @SredniaWiek AS SredniaWiek;
+END;
+GO
+
+-- Procedura - WypiszTrofeaDlaZawodnika (wypisuje trofea dla danego zawodnika)
+CREATE PROCEDURE WypiszTrofeaDlaZawodnika
+    @IdZawodnika INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        t.ZdobyteTrofeum,
+        w.Nazwa AS NazwaZawodow,
+        d.Nazwa AS Dyscyplina
+    FROM Trofea t
+    JOIN Zawody w ON t.IdZawodow = w.IdZawody
+    JOIN Dyscyplina d ON t.NrDyscyplinySportowej = d.IdDyscyplina
+    WHERE t.NrZawodnika = @IdZawodnika;
+    
+    -- Jeśli chcesz dodatkowo wypisać komunikat:
+    PRINT 'Wypisano trofea dla zawodnika o ID: ' + CAST(@IdZawodnika AS VARCHAR);
+END;
+GO
+
+
+-- Procedura generuje raport sprzedaży pamiątek – grupuje zakupy według zawodów, podając liczbę zakupów i łączną wartość sprzedaży. Procedura zwraca wynik jako zbiór rekordów.
+CREATE PROCEDURE RaportSprzedazyPamiatek
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        w.IdZawody,
+        w.Nazwa AS NazwaZawodow,
+        COUNT(z.IdZakupy) AS LiczbaZakupow,
+        SUM(p.Cena) AS TotalSales
+    FROM Zakupy z
+    JOIN Zawody w ON z.IdZawodow = w.IdZawody
+    JOIN Pamiatki p ON z.NrPamiatki = p.IdPamiatki
+    GROUP BY w.IdZawody, w.Nazwa;
+END;
+GO
