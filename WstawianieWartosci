@@ -1,0 +1,155 @@
+INSERT INTO OsobaSportowa (IdOsobaSportowa, Imie, Nazwisko, DataUrodzenia, Status1, DataRejestracji) VALUES
+(1, 'Jan', 'Kowalski', '1990-05-15', 'Aktywny', '2023-01-01'),
+(2, 'Anna', 'Nowak', '1985-08-22', 'Aktywny', '2023-01-02'),
+(3, 'Piotr', 'Wiśniewski', '1995-03-10', 'Nieaktywny', '2023-01-03'),
+(4, 'Maria', 'Dąbrowska', '1992-11-30', 'Aktywny', '2023-01-04'),
+(5, 'Krzysztof', 'Lewandowski', '1988-07-25', 'Aktywny', '2023-01-05'),
+(6, 'Agnieszka', 'Wójcik', '1998-09-12', 'Nieaktywny', '2023-01-06'),
+(7, 'Marek', 'Kamiński', '1991-04-18', 'Aktywny', '2023-01-07');
+
+
+INSERT INTO Dyscyplina (IdDyscyplina, Nazwa) VALUES
+(1, 'Biegi'),
+(2, 'Pływanie'),
+(3, 'Skoki'),
+(4, 'Kolarstwo'),
+(5, 'Tenis'),
+(6, 'Piłka nożna'),
+(7, 'Siatkówka');
+
+
+INSERT INTO Zawodnicy (IdZawodnicy, OsobaSportowaId, GlownaDyscyplina, PESEL) VALUES
+(1, 1, 1, '90051512345'),
+(2, 2, 2, '85082254321'),
+(3, 3, 3, '95031098765'),
+(4, 4, 4, '92113045678'),
+(5, 5, 5, '88072567890'),
+(6, 6, 6, '98091234567'),
+(7, 7, 7, '91041887654');
+
+
+INSERT INTO Stowarzyszenia (IdStowarzyszenia, Nazwa) VALUES
+(1, 'Stowarzyszenie Kibiców Biegów'),
+(2, 'Stowarzyszenie Kibiców Pływania'),
+(3, 'Stowarzyszenie Kibiców Skoków'),
+(4, 'Stowarzyszenie Kibiców Kolarstwa'),
+(5, 'Stowarzyszenie Kibiców Tenisa'),
+(6, 'Stowarzyszenie Kibiców Piłki Nożnej'),
+(7, 'Stowarzyszenie Kibiców Siatkówki');
+
+INSERT INTO Kibice (IdKibice, OsobaSportowaId, NrStowarzyszenia) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 3),
+(4, 4, 4),
+(5, 5, 5),
+(6, 6, 6),
+(7, 7, 7);
+
+INSERT INTO Miejsce (IdMiejsce, Nazwa, Miejscowosc) VALUES
+(1, 'Stadion Narodowy', 'Warszawa'),
+(2, 'Arena Gdańsk', 'Gdańsk'),
+(3, 'Hala Olivia', 'Gdańsk'),
+(4, 'Stadion Miejski', 'Poznań'),
+(5, 'Hala Torwar', 'Warszawa'),
+(6, 'Stadion Śląski', 'Chorzów'),
+(7, 'Hala Orbita', 'Wrocław');
+
+INSERT INTO Zawody (IdZawody, Nazwa, Data, Miejsce) VALUES
+(1, 'Mistrzostwa Polski w Biegach', '2024-06-01', 1),
+(2, 'Mistrzostwa Europy w Pływaniu', '2024-07-15', 2),
+(3, 'Puchar Świata w Skokach', '2024-08-20', 3),
+(4, 'Tour de Pologne', '2024-09-10', 4),
+(5, 'Wimbledon', '2024-07-01', 5),
+(6, 'Liga Mistrzów', '2024-05-30', 6),
+(7, 'Mistrzostwa Świata w Siatkówce', '2024-10-01', 7);
+
+INSERT INTO ZawodnicyZawody (IdZawodnicyZawody, NrZawodnika, IdZawodow) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 3),
+(4, 4, 4),
+(5, 5, 5),
+(6, 6, 6),
+(7, 7, 7);
+
+INSERT INTO Trofea (IdTrofea, NrZawodnika, ZdobyteTrofeum, IdZawodow, NrDyscyplinySportowej) VALUES
+(1, 1, 'Złoty medal', 1, 1),
+(2, 2, 'Srebrny medal', 2, 2),
+(3, 3, 'Brązowy medal', 3, 3),
+(4, 4, 'Złoty medal', 4, 4),
+(5, 5, 'Srebrny medal', 5, 5),
+(6, 6, 'Brązowy medal', 6, 6),
+(7, 7, 'Złoty medal', 7, 7);
+
+INSERT INTO KibicZawody (IdKibicZawody, NrZawodow, Kibic, CenaBiletu) VALUES
+(1, 1, 1, 100),
+(2, 2, 2, 150),
+(3, 3, 3, 200),
+(4, 4, 4, 250),
+(5, 5, 5, 300),
+(6, 6, 6, 350),
+(7, 7, 7, 400);
+
+INSERT INTO TypyPamiatek (IdTypyPamiatek, Nazwa, Marza) VALUES
+(1, 'Kubki', 10),
+(2, 'Koszulki', 20),
+(3, 'Czapki', 15),
+(4, 'Plakaty', 5),
+(5, 'Plecaki', 25),
+(6, 'Medale', 30),
+(7, 'Figurki', 35);
+
+INSERT INTO Pamiatki (IdPamiatki, Nazwa, Cena, TypPamiatki, CzyDostepneWszedzie) VALUES
+(1, 'Kubek', 20.00, 1, 1),
+(2, 'Koszulka', 50.00, 2, 1),
+(3, 'Czapka', 30.00, 3, 1),
+(4, 'Plakat', 15.00, 4, 0),
+(5, 'Plecak', 70.00, 5, 1),
+(6, 'Medal', 100.00, 6, 0),
+(7, 'Figurka', 120.00, 7, 0);
+
+INSERT INTO Zakupy (IdZakupy, NrKlienta, NrPamiatki, IdZawodow) VALUES
+(1, 1, 1, 1),
+(2, 2, 2, 2),
+(3, 3, 3, 3),
+(4, 4, 4, 4),
+(5, 5, 5, 5),
+(6, 6, 6, 6),
+(7, 7, 7, 7);
+
+INSERT INTO Sponsorzy (IdSponsorzy, Nazwa) VALUES
+(1, 'Nike'),
+(2, 'Adidas'),
+(3, 'Puma'),
+(4, 'Red Bull'),
+(5, 'Coca-Cola'),
+(6, 'Pepsi'),
+(7, 'Toyota');
+
+INSERT INTO Sponsoring (IdSponsoring, IdSponsora, Zawody, Kwota) VALUES
+(1, 1, 1, 100000),
+(2, 2, 2, 150000),
+(3, 3, 3, 200000),
+(4, 4, 4, 250000),
+(5, 5, 5, 300000),
+(6, 6, 6, 350000),
+(7, 7, 7, 400000);
+
+INSERT INTO Rekord100m (IdRekord100m, NrZawodnika, Czas_s) VALUES
+(1, 1, 9.58),
+(2, 2, 10.12),
+(3, 3, 10.45),
+(4, 4, 10.78),
+(5, 5, 11.02),
+(6, 6, 11.34),
+(7, 7, 11.56);
+
+INSERT INTO KonkursyDlaKibicow (IdKonkursyDlaKibicow, Nazwa, Zwyciezca, NrNagrody) VALUES
+(1, 'Konkurs wiedzy sportowej', 1, 1),
+(2, 'Konkurs plastyczny', 2, 2),
+(3, 'Konkurs fotograficzny', 3, 3),
+(4, 'Konkurs karaoke', 4, 4),
+(5, 'Konkurs taneczny', 5, 5),
+(6, 'Konkurs wiedzy o klubie', 6, 6),
+(7, 'Konkurs quizowy', 7, 7);
