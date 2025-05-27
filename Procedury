@@ -1,0 +1,131 @@
+CREATE PROCEDURE DodajOsobeSportowa
+    @IdOsobaSportowa INT,
+    @Imie NVARCHAR(50),
+    @Nazwisko NVARCHAR(50),
+    @DataUrodzenia DATETIME,
+    @Status1 NVARCHAR(50)
+AS
+BEGIN
+    -- Sprawdź, czy data urodzenia jest w przeszłości
+    IF @DataUrodzenia >= GETDATE()
+    BEGIN
+        RAISERROR('Data urodzenia musi być w przeszłości.', 16, 1);
+        RETURN;
+    END;
+
+    -- Dodaj nową osobę sportową
+    INSERT INTO OsobaSportowa (IdOsobaSportowa, Imie, Nazwisko, DataUrodzenia, Status1)
+    VALUES (@IdOsobaSportowa, @Imie, @Nazwisko, @DataUrodzenia, @Status1);
+END;
+GO
+CREATE PROCEDURE UsunOsobeSportowa
+    @IdOsobaSportowa INT
+AS
+BEGIN
+    -- Sprawdź, czy osoba sportowa istnieje
+    IF NOT EXISTS (SELECT 1 FROM OsobaSportowa WHERE IdOsobaSportowa = @IdOsobaSportowa)
+    BEGIN
+        RAISERROR('Osoba sportowa o podanym ID nie istnieje.', 16, 1);
+        RETURN;
+    END;
+
+    -- Usuń osobę sportową (kaskadowo usunie zawodników i kibiców)
+    DELETE FROM OsobaSportowa
+    WHERE IdOsobaSportowa = @IdOsobaSportowa;
+END;
+GO
+
+
+CREATE PROCEDURE AktualizujStatusOsobySportowej
+    @IdOsobaSportowa INT,
+    @NowyStatus NVARCHAR(50)
+AS
+BEGIN
+    -- Sprawdź, czy osoba sportowa istnieje
+    IF NOT EXISTS (SELECT 1 FROM OsobaSportowa WHERE IdOsobaSportowa = @IdOsobaSportowa)
+    BEGIN
+        RAISERROR('Osoba sportowa o podanym ID nie istnieje.', 16, 1);
+        RETURN;
+    END;
+
+    -- Zaktualizuj status
+    UPDATE OsobaSportowa
+    SET Status1 = @NowyStatus
+    WHERE IdOsobaSportowa = @IdOsobaSportowa;
+END;
+GO
+
+
+CREATE PROCEDURE PobierzZawodnikowZDyscypliny
+    @IdDyscyplina INT
+AS
+BEGIN
+    -- Sprawdź, czy dyscyplina istnieje
+    IF NOT EXISTS (SELECT 1 FROM Dyscyplina WHERE IdDyscyplina = @IdDyscyplina)
+    BEGIN
+        RAISERROR('Dyscyplina o podanym ID nie istnieje.', 16, 1);
+        RETURN;
+    END;
+
+    -- Pobierz zawodników z danej dyscypliny
+    SELECT Z.IdZawodnicy, O.Imie, O.Nazwisko, D.Nazwa AS Dyscyplina
+    FROM Zawodnicy Z
+    INNER JOIN OsobaSportowa O ON Z.OsobaSportowaId = O.IdOsobaSportowa
+    INNER JOIN Dyscyplina D ON Z.GlownaDyscyplina = D.IdDyscyplina
+    WHERE Z.GlownaDyscyplina = @IdDyscyplina;
+END;
+GO
+
+CREATE PROCEDURE DodajZawody
+    @IdZawody INT,
+    @Nazwa VARCHAR(46),
+    @Data DATETIME,
+    @IdMiejsce INT
+AS
+BEGIN
+    -- Sprawdź, czy data zawodów jest w przeszłości
+    IF @Data >= GETDATE()
+    BEGIN
+        RAISERROR('Data zawodów musi być w przeszłości.', 16, 1);
+        RETURN;
+    END;
+
+    -- Sprawdź, czy miejsce zawodów istnieje
+    IF NOT EXISTS (SELECT 1 FROM Miejsce WHERE IdMiejsce = @IdMiejsce)
+    BEGIN
+        RAISERROR('Miejsce o podanym ID nie istnieje.', 16, 1);
+        RETURN;
+    END;
+
+    -- Dodaj nowe zawody
+    INSERT INTO Zawody (IdZawody, Nazwa, Data, Miejsce)
+    VALUES (@IdZawody, @Nazwa, @Data, @IdMiejsce);
+END;
+GO
+
+SELECT Z.IdZawodnicy, O.Imie, O.Nazwisko, D.Nazwa AS Dyscyplina
+FROM Zawodnicy Z
+INNER JOIN OsobaSportowa O ON Z.OsobaSportowaId = O.IdOsobaSportowa
+INNER JOIN Dyscyplina D ON Z.GlownaDyscyplina = D.IdDyscyplina;
+
+SELECT Z.Nazwa AS Zawody, M.Nazwa AS Miejsce, Z.Data
+FROM Zawody Z
+INNER JOIN Miejsce M ON Z.Miejsce = M.IdMiejsce;
+
+SELECT T.ZdobyteTrofeum, O.Imie, O.Nazwisko, D.Nazwa AS Dyscyplina
+FROM Trofea T
+INNER JOIN Zawodnicy Z ON T.NrZawodnika = Z.IdZawodnicy
+INNER JOIN OsobaSportowa O ON Z.OsobaSportowaId = O.IdOsobaSportowa
+INNER JOIN Dyscyplina D ON T.NrDyscyplinySportowej = D.IdDyscyplina;
+
+-- zawodnicy u18
+SELECT O.Imie, O.Nazwisko, O.DataUrodzenia
+FROM OsobaSportowa O
+INNER JOIN Zawodnicy Z ON O.IdOsobaSportowa = Z.OsobaSportowaId
+WHERE YEAR(O.DataUrodzenia) > 2007;
+
+SELECT D.Nazwa AS Dyscyplina, COUNT(Z.IdZawodnicy) AS LiczbaZawodnikow
+FROM Zawodnicy Z
+INNER JOIN Dyscyplina D ON Z.GlownaDyscyplina = D.IdDyscyplina
+GROUP BY D.Nazwa;
+
