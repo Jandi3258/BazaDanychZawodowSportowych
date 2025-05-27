@@ -87,3 +87,4 @@ FROM KonkursyDlaKibicow kd
 JOIN Kibice k ON kd.Zwyciezca = k.IdKibice
 JOIN Pamiatki p ON kd.NrNagrody = p.IdPamiatki;
 GO
+
