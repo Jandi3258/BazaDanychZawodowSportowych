@@ -1,0 +1,61 @@
+CREATE FUNCTION dbo.F_RankingZawodnika(@IdZawodnika INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @Czas DECIMAL(4,2);
+    DECLARE @Ranking INT;
+    SELECT @Czas = Czas_s 
+    FROM Rekord100m 
+    WHERE NrZawodnika = @IdZawodnika;
+    IF @Czas IS NULL
+        RETURN NULL;
+
+ 
+    SELECT @Ranking = COUNT(*) + 1
+    FROM Rekord100m
+    WHERE Czas_s < @Czas;
+
+    RETURN @Ranking;
+END;
+GO
+
+CREATE FUNCTION dbo.F_SpodsumowanieWydatkowKibica(@IdKibice INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT 
+         @IdKibice AS IdKibice,
+         ISNULL((SELECT SUM(CenaBiletu) 
+                 FROM KibicZawody 
+                 WHERE Kibic = @IdKibice), 0) AS TotalTicketCost,
+         ISNULL((SELECT SUM(p.Cena)
+                 FROM Zakupy z
+                 JOIN Pamiatki p ON z.NrPamiatki = p.IdPamiatki
+                 WHERE z.NrKlienta = @IdKibice), 0) AS TotalSouvenirCost,
+         ISNULL((SELECT SUM(CenaBiletu) 
+                 FROM KibicZawody 
+                 WHERE Kibic = @IdKibice), 0)
+         + ISNULL((SELECT SUM(p.Cena)
+                 FROM Zakupy z
+                 JOIN Pamiatki p ON z.NrPamiatki = p.IdPamiatki
+                 WHERE z.NrKlienta = @IdKibice), 0) AS OverallCost
+);
+GO
+
+CREATE FUNCTION dbo.F_DyscyplinaPerformance(@IdDyscypliny INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT 
+        COUNT(*) AS LiczbaRekordow,
+        MIN(r.Czas_s) AS NajlepszyCzas,
+        MAX(r.Czas_s) AS NajgorszyCzas,
+        AVG(r.Czas_s) AS SredniCzas
+    FROM Rekord100m r
+    JOIN Zawodnicy z ON r.NrZawodnika = z.IdZawodnicy
+    WHERE z.GlownaDyscyplina = @IdDyscypliny
+);
+GO
+
