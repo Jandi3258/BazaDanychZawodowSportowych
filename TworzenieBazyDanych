@@ -1,0 +1,217 @@
+-- Usuń bazę danych, jeśli istnieje
+IF DB_ID('ZawodySportowe') IS NOT NULL
+    DROP DATABASE ZawodySportowe;
+GO
+
+-- Utwórz bazę danych
+CREATE DATABASE ZawodySportowe;
+GO
+
+-- Użyj bazy danych ZawodySportowe
+USE ZawodySportowe;
+GO
+
+-- Tabela OsobaSportowa (encja nadrzędna)
+CREATE TABLE OsobaSportowa (
+    IdOsobaSportowa INT PRIMARY KEY,
+    Imie NVARCHAR(50) NOT NULL,
+    Nazwisko NVARCHAR(50) NOT NULL,
+    DataUrodzenia DATETIME NOT NULL,
+    Status1 NVARCHAR(50) NOT NULL,
+    DataRejestracji DATETIME DEFAULT GETDATE()
+);
+
+-- Tabela Zawodnicy (encja podrzędna)
+CREATE TABLE Zawodnicy (
+    IdZawodnicy INT PRIMARY KEY,
+    OsobaSportowaId INT NOT NULL,
+    GlownaDyscyplina INT NOT NULL,
+    PESEL VARCHAR(11) NOT NULL,
+    CONSTRAINT FK_Zawodnicy_OsobaSportowa FOREIGN KEY (OsobaSportowaId) REFERENCES OsobaSportowa(IdOsobaSportowa) ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- Tabela Kibice (encja podrzędna)
+CREATE TABLE Kibice (
+    IdKibice INT PRIMARY KEY,
+    OsobaSportowaId INT NOT NULL,
+    NrStowarzyszenia INT NULL,
+    CONSTRAINT FK_Kibice_OsobaSportowa FOREIGN KEY (OsobaSportowaId) REFERENCES OsobaSportowa(IdOsobaSportowa) ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
+-- Tabela Zawody
+CREATE TABLE Zawody (
+    IdZawody INT PRIMARY KEY,
+    Nazwa VARCHAR(46) NOT NULL,
+    Data DATETIME NOT NULL,
+    Miejsce INT NOT NULL
+);
+
+-- Tabela ZawodnicyZawody
+CREATE TABLE ZawodnicyZawody (
+    IdZawodnicyZawody INT PRIMARY KEY,
+    NrZawodnika INT NOT NULL,
+    IdZawodow INT NOT NULL,
+    CONSTRAINT FK_ZawodnicyZawody_Zawodnicy FOREIGN KEY (NrZawodnika) REFERENCES Zawodnicy(IdZawodnicy) ON DELETE CASCADE 
+    ON UPDATE CASCADE,
+    CONSTRAINT FK_ZawodnicyZawody_Zawody FOREIGN KEY (IdZawodow) REFERENCES Zawody(IdZawody)
+);
+
+-- Tabela Dyscyplina
+CREATE TABLE Dyscyplina (
+    IdDyscyplina INT PRIMARY KEY,
+    Nazwa VARCHAR(14) NOT NULL
+);
+
+-- Tabela Miejsce
+CREATE TABLE Miejsce (
+    IdMiejsce INT PRIMARY KEY,
+    Nazwa VARCHAR(29) NOT NULL,
+    Miejscowosc VARCHAR(10) NOT NULL
+);
+
+-- Tabela Trofea
+CREATE TABLE Trofea (
+    IdTrofea INT PRIMARY KEY,
+    NrZawodnika INT NOT NULL,
+    ZdobyteTrofeum VARCHAR(34) NOT NULL,
+    IdZawodow INT NOT NULL,
+    NrDyscyplinySportowej INT NOT NULL,
+    CONSTRAINT FK_Trofea_Zawodnicy FOREIGN KEY (NrZawodnika) REFERENCES Zawodnicy(IdZawodnicy) ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    CONSTRAINT FK_Trofea_Zawody FOREIGN KEY (IdZawodow) REFERENCES Zawody(IdZawody),
+    CONSTRAINT FK_Trofea_Dyscyplina FOREIGN KEY (NrDyscyplinySportowej) REFERENCES Dyscyplina(IdDyscyplina)
+);
+
+-- Tabela Stowarzyszenia
+CREATE TABLE Stowarzyszenia (
+    IdStowarzyszenia INT PRIMARY KEY,
+    Nazwa VARCHAR(46) NOT NULL
+);
+
+-- Tabela KibicZawody
+CREATE TABLE KibicZawody (
+    IdKibicZawody INT PRIMARY KEY,
+    NrZawodow INT NOT NULL,
+    Kibic INT NOT NULL,
+    CenaBiletu INT NOT NULL,
+    CONSTRAINT FK_KibicZawody_Zawody FOREIGN KEY (NrZawodow) REFERENCES Zawody(IdZawody),
+    CONSTRAINT FK_KibicZawody_Kibice FOREIGN KEY (Kibic) REFERENCES Kibice(IdKibice) ON DELETE CASCADE
+ON UPDATE CASCADE,
+);
+
+-- Tabela Pamiatki
+CREATE TABLE Pamiatki (
+    IdPamiatki INT PRIMARY KEY,
+    Nazwa VARCHAR(22) NOT NULL,
+    Cena DECIMAL(5,2) NOT NULL,
+    TypPamiatki INT NOT NULL,
+    CzyDostepneWszedzie INT NOT NULL
+);
+
+-- Tabela TypyPamiatek
+CREATE TABLE TypyPamiatek (
+    IdTypyPamiatek INT PRIMARY KEY,
+    Nazwa VARCHAR(25) NOT NULL,
+    Marza INT NOT NULL
+);
+
+-- Tabela Zakupy
+CREATE TABLE Zakupy (
+    IdZakupy INT PRIMARY KEY,
+    NrKlienta INT NOT NULL,
+    NrPamiatki INT NOT NULL,
+    IdZawodow INT NOT NULL,
+    CONSTRAINT FK_Zakupy_Kibice FOREIGN KEY (NrKlienta) REFERENCES Kibice(IdKibice) ON DELETE CASCADE
+ON UPDATE CASCADE,
+    CONSTRAINT FK_Zakupy_Pamiatki FOREIGN KEY (NrPamiatki) REFERENCES Pamiatki(IdPamiatki),
+    CONSTRAINT FK_Zakupy_Zawody FOREIGN KEY (IdZawodow) REFERENCES Zawody(IdZawody)
+);
+
+-- Tabela Sponsorzy
+CREATE TABLE Sponsorzy (
+    IdSponsorzy INT PRIMARY KEY,
+    Nazwa VARCHAR(30) NOT NULL
+);
+
+-- Tabela Sponsoring
+CREATE TABLE Sponsoring (
+    IdSponsoring INT PRIMARY KEY,
+    IdSponsora INT NOT NULL,
+    Zawody INT NOT NULL,
+    Kwota INT NOT NULL,
+    CONSTRAINT FK_Sponsoring_Sponsorzy FOREIGN KEY (IdSponsora) REFERENCES Sponsorzy(IdSponsorzy),
+    CONSTRAINT FK_Sponsoring_Zawody FOREIGN KEY (Zawody) REFERENCES Zawody(IdZawody)
+);
+
+-- Tabela Rekord100m
+CREATE TABLE Rekord100m (
+    IdRekord100m INT PRIMARY KEY,
+    NrZawodnika INT NOT NULL,
+    Czas_s DECIMAL(4,2) NOT NULL,
+    CONSTRAINT FK_Rekord100m_Zawodnicy FOREIGN KEY (NrZawodnika) REFERENCES Zawodnicy(IdZawodnicy) ON DELETE CASCADE
+ON UPDATE CASCADE,
+);
+
+-- Tabela KonkursyDlaKibicow
+CREATE TABLE KonkursyDlaKibicow (
+    IdKonkursyDlaKibicow INT PRIMARY KEY,
+    Nazwa VARCHAR(50) NOT NULL,
+    Zwyciezca INT NOT NULL,
+    NrNagrody INT NOT NULL,
+    CONSTRAINT FK_KonkursyDlaKibicow_Kibice FOREIGN KEY (Zwyciezca) REFERENCES Kibice(IdKibice) ON DELETE CASCADE
+	ON UPDATE CASCADE,
+    CONSTRAINT FK_KonkursyDlaKibicow_Pamiatki FOREIGN KEY (NrNagrody) REFERENCES Pamiatki(IdPamiatki)
+);
+
+-- Dodaj klucze obce do tabeli Zawodnicy
+ALTER TABLE Zawodnicy
+ADD CONSTRAINT FK_Zawodnicy_Dyscyplina FOREIGN KEY (GlownaDyscyplina) REFERENCES Dyscyplina(IdDyscyplina);
+
+-- Dodaj klucze obce do tabeli Zawody
+ALTER TABLE Zawody
+ADD CONSTRAINT FK_Zawody_Miejsce FOREIGN KEY (Miejsce) REFERENCES Miejsce(IdMiejsce);
+
+-- Dodaj klucze obce do tabeli Kibice
+ALTER TABLE Kibice
+ADD CONSTRAINT FK_Kibice_Stowarzyszenia FOREIGN KEY (NrStowarzyszenia) REFERENCES Stowarzyszenia(IdStowarzyszenia);
+
+-- Dodaj klucze obce do tabeli Pamiatki
+ALTER TABLE Pamiatki
+ADD CONSTRAINT FK_Pamiatki_TypyPamiatek FOREIGN KEY (TypPamiatki) REFERENCES TypyPamiatek(IdTypyPamiatek);
+--Sprawdź, czy DataUrodzenia jest wcześniejsza niż bieżąca data:
+ALTER TABLE OsobaSportowa
+ADD CONSTRAINT CHK_OsobaSportowa_DataUrodzenia CHECK (DataUrodzenia < GETDATE());
+--Sprawdź, czy Data zawodów jest w przeszłości:
+ALTER TABLE Zawody
+ADD CONSTRAINT CHK_Zawody_Data CHECK (Data < GETDATE());
+--Sprawdź, czy cena biletu jest większa niż 0
+ALTER TABLE KibicZawody
+ADD CONSTRAINT CHK_KibicZawody_CenaBiletu CHECK (CenaBiletu > 0);
+--Usuń zawodnika, jeśli zostanie usunięta powiązana osoba sportowa:
+ALTER TABLE Zawodnicy
+DROP CONSTRAINT FK_Zawodnicy_OsobaSportowa;
+--Usuń kibica, jeśli zostanie usunięta powiązana osoba sportowa:
+ALTER TABLE Kibice
+DROP CONSTRAINT FK_Kibice_OsobaSportowa;
+
+ALTER TABLE Kibice
+ADD CONSTRAINT FK_Kibice_OsobaSportowa 
+FOREIGN KEY (OsobaSportowaId) REFERENCES OsobaSportowa(IdOsobaSportowa)
+ON DELETE CASCADE;
+--
+
+ALTER TABLE Zawodnicy
+ADD CONSTRAINT FK_Zawodnicy_OsobaSportowa 
+FOREIGN KEY (OsobaSportowaId) REFERENCES OsobaSportowa(IdOsobaSportowa)
+ON DELETE CASCADE;
+--UNIQUE dla kolumny PESEL - każdy zawodnik ma unikalny numer PESEL:
+ALTER TABLE Zawodnicy
+ADD CONSTRAINT UQ_Zawodnicy_PESEL UNIQUE (PESEL);
+--UNIQUE dla kolumny Nazwa - nazwy dyscyplin muszą być unikalne:
+ALTER TABLE Dyscyplina
+ADD CONSTRAINT UQ_Dyscyplina_Nazwa UNIQUE (Nazwa);
+--UNIQUE dla kolumny Nazwa - nazwy stowarzyszeń muszą być unikalne:
+ALTER TABLE Stowarzyszenia
+ADD CONSTRAINT UQ_Stowarzyszenia_Nazwa UNIQUE (Nazwa);
