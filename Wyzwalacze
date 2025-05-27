@@ -1,0 +1,91 @@
+1. CREATE TRIGGER TR_ustaw_na_osobe_akt
+ON Zawodnicy
+AFTER INSERT
+AS
+BEGIN
+    UPDATE OsobaSportowa
+    SET Status1 = 'Aktywny'
+    FROM OsobaSportowa
+    INNER JOIN inserted i ON OsobaSportowa.IdOsobaSportowa = i.OsobaSportowaId;
+END;
+GO
+
+2. CREATE TRIGGER TR_zatwierdzenie_peselu
+ON Zawodnicy
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM inserted
+        WHERE PESEL LIKE '%[^0-9]%' OR LEN(PESEL) <> 11
+    )
+    BEGIN
+         RAISERROR('Błędny format numeru PESEL. PESEL powinien zawierać dokładnie 11 cyfr.', 16, 1);
+         ROLLBACK TRANSACTION;
+         RETURN;
+    END;
+END;
+GO
+
+3.  CREATE TRIGGER TR_zapobieganie_usunieciu_akt_zawodnika
+ON OsobaSportowa
+INSTEAD OF DELETE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM deleted d
+        JOIN Zawodnicy z ON d.IdOsobaSportowa = z.OsobaSportowaId
+        JOIN ZawodnicyZawody zz ON z.IdZawodnicy = zz.NrZawodnika
+    )
+    BEGIN
+         RAISERROR('Nie można usunąć osoby sportowej, która brała udział w zawodach.', 16, 1);
+         ROLLBACK TRANSACTION;
+         RETURN;
+    END
+    ELSE
+    BEGIN
+         DELETE FROM OsobaSportowa 
+         WHERE IdOsobaSportowa IN (SELECT IdOsobaSportowa FROM deleted);
+    END;
+END;
+GO
+
+4. CREATE TRIGGER TR_Sprawdz_dostepnosc_miejsc
+ON Zawody
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM Zawody z
+        JOIN inserted i ON z.Miejsce = i.Miejsce
+        WHERE CAST(z.Data AS DATE) = CAST(i.Data AS DATE)
+          AND z.IdZawody <> i.IdZawody
+    )
+    BEGIN
+         RAISERROR('W tym miejscu jest już zaplanowane wydarzenie w tym dniu.', 16, 1);
+         ROLLBACK TRANSACTION;
+         RETURN;
+    END;
+END;
+GO
+
+5. CREATE TRIGGER TR_nowy_rekord_100m
+ON Rekord100m
+AFTER INSERT
+AS
+BEGIN
+    DECLARE @NewTime DECIMAL(4,2);
+    DECLARE @BestTime DECIMAL(4,2);
+    
+    SELECT TOP 1 @NewTime = Czas_s FROM inserted;
+    SELECT @BestTime = MIN(Czas_s) FROM Rekord100m;
+    
+    IF @NewTime = @BestTime
+    BEGIN
+         PRINT 'Nowy rekord w biegu na 100m! Gratulacje!';
+    END;
+END;
+GO
