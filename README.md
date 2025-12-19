@@ -1,55 +1,60 @@
-Sports Competition Management System (Baza Danych Zawodów Sportowych)
-📌 Overview
-This project is a comprehensive database management system designed to handle sports competitions. It allows for efficient organization of data related to sports events, including athletes, coaches, medical staff, referees, and various sports disciplines.
+# 🏆 Sports Competition Management System
+### (Baza Danych Zawodów Sportowych)
 
-The system is built using SQL Server and provides a structured way to manage the complex relationships between participants, technical staff, and competition results.
+## 📌 Overview
+This project is a comprehensive database management system designed to streamline the organization of sports competitions. It provides a robust structure for managing high-volume data related to athletes, technical staff, event logistics, and official results.
 
-🚀 Features
-Comprehensive Database Schema: Includes tables for Athletes, Coaches, Referees, Medical Staff, and Sports Categories.
+The system is built using **SQL Server**, ensuring data integrity and efficient relational mapping between participants, medical personnel, and event venues.
 
-Result Tracking: Ability to record and manage scores and competition outcomes.
+---
 
-Staff Management: Clear separation of roles, from coaching staff to medical personnel ensuring athlete safety.
+## 🚀 Features
+* **Comprehensive Schema:** Dedicated tables for Athletes, Coaches, Referees, and Medical Staff.
+* **Result Tracking:** Systematic recording of scores and final standings.
+* **Staff Management:** Role-based management for coaching staff and safety personnel.
+* **Infrastructure Logistics:** Tracking of sports facilities, stadiums, and event schedules.
+* **Data Integrity:** Robust implementation of Primary and Foreign Key constraints to maintain relational consistency.
 
-Infrastructure & Logistics: Management of sports facilities and event venues.
+---
 
-Data Integrity: Implements primary and foreign key constraints to ensure consistent and reliable data.
+## 🛠 Tech Stack
+* **Language:** SQL (T-SQL)
+* **Platform:** Microsoft SQL Server
+* **Tools:** SQL Server Management Studio (SSMS)
 
-🛠 Tech Stack
-Language: SQL (T-SQL)
+---
 
-Platform: Microsoft SQL Server
+## 📂 Database Structure & ERD
+The database architecture is divided into several logical modules:
 
-Tools: SQL Server Management Studio (SSMS)
+* **Participants:** Detailed profiles of competitors including licensing and personal data.
+* **Supervision:** Mapping of coaches to their respective athletes.
+* **Logistics:** Comprehensive records of venues, stadiums, and competition timelines.
+* **Health & Safety:** Assignments of medical staff to specific events.
 
-📂 Database Structure (ERD Highlights)
-The database consists of several interconnected modules:
+### Entity Relationship Diagram (ERD)
+![Database Diagram](Diagram.png) 
+*> Note: Replace "Diagram.png" with the actual path to your image file in the repository.*
 
-Participants: Detailed information about competitors (personal data, licenses).
+---
 
-Supervision: Management of coaches and their assignments to athletes.
+## 📖 How to Use
 
-Logistics: Records of sports halls, stadiums, and competition dates.
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/Jandi3258/BazaDanychZawodowSportowych.git](https://github.com/Jandi3258/BazaDanychZawodowSportowych.git)
+    ```
 
-Health & Safety: Data regarding medical staff assigned to specific events.
+2.  **Setup:**
+    * Open **SQL Server Management Studio (SSMS)**.
+    * Connect to your instance.
+    * Open and execute the `.sql` scripts to generate the database schema.
+    * *(Optional)* Run the data insertion scripts to populate the tables with sample records.
 
-📖 How to Use
-Clone the repository:
+3.  **Queries:**
+    * Utilize the predefined scripts to generate reports such as winner lists, event schedules, or staff duty rosters.
 
-Bash
+---
 
-git clone https://github.com/Jandi3258/BazaDanychZawodowSportowych.git
-Setup:
-
-Open SQL Server Management Studio (SSMS).
-
-Run the provided .sql scripts to generate the database schema.
-
-(Optional) Execute the data insertion scripts to populate the database with sample records.
-
-Queries:
-
-Use the predefined queries to generate reports on winner lists, event schedules, or staff assignments.
-
-📝 Author
-Developed by Jandi3258.
+## 📝 Author
+Developed by [Jandi3258](https://github.com/Jandi3258).
