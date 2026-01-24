@@ -34,7 +34,6 @@ The database architecture is divided into several logical modules:
 
 ### Entity Relationship Diagram (ERD)
 ![Database Diagram](Diagram.png) 
-*> Note: Replace "Diagram.png" with the actual path to your image file in the repository.*
 
 ---
 
