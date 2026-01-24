@@ -33,7 +33,7 @@ The database architecture is divided into several logical modules:
 * **Health & Safety:** Assignments of medical staff to specific events.
 
 ### Entity Relationship Diagram (ERD)
-![Database Diagram](Diagram.png) 
+![Database Diagram](Diagram.jpg) 
 
 ---
 
